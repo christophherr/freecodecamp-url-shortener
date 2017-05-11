@@ -1,55 +1,104 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7"
-        crossorigin="anonymous">
+    <link rel="shortcut icon" href="https://cdn.hyperdev.com/us-east-1%3A52a203ff-088b-420f-81be-45bf559d01b1%2Ffavicon.ico"
+        type="image/x-icon" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.1/css/bulma.min.css">
+    <style>
+        body {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        header {
+            margin: 20px 0;
+            text-align: center;
+        }
+        .field {
+            margin: 15px 0;
+        }
+        .control {
+            padding: 5px 0;
+        }
+        .input {
+            width: 80%;
+        }
+    </style>
     <meta charset="UTF-8">
     <title>URL Shortener Microservice</title>
 </head>
-
 <body>
-    <div class="container">
-        <h1 class="header">freeCodeCamp URL Shortener Microservice</h1>
-
+    <header>
+        <h1 class="title is-1">freeCodeCamp URL Shortener Microservice</h1>
+    </header>
+    <div class="content">
         <blockquote>User Stories:
             <ol>
-                <li>I can pass a URL as a parameter and I will receive a shortened URL in the JSON response.</li>
+                <li>I can pass a URL as a parameter and I will receive a shortened URL in the JSON response.<br> For Example:
+                    <code>{original_url: "http://example.com", short_url: "https://possible-need.glitch.me/2"}</code></li>
                 <li>If I pass an invalid URL that doesn't follow the valid http://www.example.com format, the JSON response will
-                    contain an error instead.
+                    contain an error instead.<br> For Example: <code>{error: "URL Invalid"}</code>
                 </li>
                 <li>When I visit that shortened URL, it will redirect me to my original link.</li>
             </ol>
         </blockquote>
-        <h2>Example usage:</h2>
-        <code>https://url-shortener-free-code-camp.herokuapp.com/new/http://example.com</code><br>
-        <code>https://url-shortener-free-code-camp.herokuapp.com/1</code>
-        <h2>Example output:</h2>
-        <code>{
-        original_url: "http://example.com",
-        short_url: "https://url-shortener-free-code-camp.herokuapp.com/2"
-        }</code><br>
-        <code>{
-        error: "URL Invalid"
-        }</code>
-        <h2>Translate URL</h2>
-        <form class="form">
-            <div class="form-group">
-                <input class="form-control" type="text" id="url" name="url" placeholder="http://example.com">
+        <div class="columns">
+            <div class="column">
+                <div class="url-shortening">
+                    <h2 class="title is-2">Shorten URLs</h2>
+                    <p>
+                        Please enter a valid URL, for example:<br>
+                        <code>https://possible-need.glitch.me/</code><br>
+                        <code>http://www.example.com</code>
+                    </p>
+                </div>
+                <div class="field">
+                    <form>
+                        <div class="control">
+                            <input class="input" type="text" id="url" name="url" placeholder="https://example.com">
+                        </div>
+                        <div class="control">
+                            <button id="shorten-url" class="button is-primary">Create Shortened URL</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                <button id="url-btn" class="btn btn-primary">Get Short URL</button>
+            <div class="column">
+                <div class="visit-shortened-urls">
+                    <h2 class="title is-2">Visit shortened URLs</h2>
+                    <p>
+                        Please enter a shortened URL, for example:<br>
+                        <code>https://possible-need.glitch.me/1</code><br>
+                    </p>
+                    <p>
+                        Note: This will only work for URLs shortened through this site.
+                    </p>
+                </div>
+                <div class="field">
+                    <form>
+                        <div class="control">
+                            <input class="input" type="text" id="shortened-url" name="shortened-url" placeholder="https://possible-need.glitch.me/1">
+                        </div>
+                        <div class="control">
+                            <button id="go-shortened-url" class="button is-success">Go to Shortened URL</button>
+                        </div>
+                    </form>
+                </div>
             </div>
-        </form>
+        </div>
     </div>
     <script>
-        var button = document.getElementById("url-btn");
-        button.addEventListener("click", function (event) {
-            event.preventDefault();
-            var url = document.getElementById("url").value;
-            window.location = '/new/' + url;
-        });
+        document.getElementById('shorten-url')
+            .addEventListener('click', function(event) {
+                event.preventDefault();
+                var url = document.getElementById('url').value;
+                window.location = '/new/' + url;
+            });
+        document.getElementById('go-shortened-url')
+            .addEventListener('click', function(event) {
+                event.preventDefault();
+                var shortenedUrl = document.getElementById('shortened-url').value;
+                window.location = shortenedUrl;
+            });
     </script>
 </body>
-
 </html>

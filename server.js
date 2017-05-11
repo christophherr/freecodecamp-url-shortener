@@ -1,4 +1,4 @@
-var express = require('express'),
+const express = require('express'),
     fs = require('fs'),
     path = require('path'),
     mongoose = require('mongoose'),
@@ -6,26 +6,23 @@ var express = require('express'),
     mongoPath = process.env.MONGOLAB_URI || 'mongodb://localhost:27017/',
     db = mongoose.connection,
     URLS = require('./mongo-schema.js'),
+    fileName = path.join(__dirname, 'index.html'),
     app = express();
 
 app.set('port', process.env.PORT);
 
-// app.get('/', function (req, res) {res.send("Freecodecamp URL Shortener Microservice Coming Soon")});
-
-//app.use(function(req, res){res.sendStatus(404);});
-
 mongoose.connect(mongoPath);
 
-db.on('error', console.error.bind(console, 'connection error:'));
+db.on('error', err => {
+    console.error(`${err.message}`);
+});
 
-app.listen(app.get('port'), function() {
+app.listen(app.get('port'), () => {
     console.log('Node.js Server is listening on port ' + app.get('port'));
 });
 
-app.get('/', function(req, res) {
-    var fileName = path.join(__dirname, 'index.html');
-    //var fileName = './views/index.html';
-    res.sendFile(fileName, function(err) {
+app.get('/', (req, res) => {
+    res.sendFile(fileName, err => {
         if (err) {
             console.log(err);
             res.status(err.status).end();
@@ -40,51 +37,62 @@ app.get('/:id', function(req, res) {
         res.status(404).send('Invalid Short URL');
     }
 
-    URLS.find({ id: id }, function(err, recs) {
-        if (err) {
-            res.status(404).send(err);
+    URLS.find(
+        {
+            id: id
+        },
+        (err, rec) => {
+            if (err) {
+                res.status(404).send(err);
+            } else if (rec && rec.length) {
+                res.redirect(rec[0].url);
+            } else {
+                res.status(404).send('Invalid Short URL');
+            }
         }
+    );
+});
 
-        if (recs && recs.length) {
-            res.redirect(recs[0].url);
-        }
+app.get('/new/*?', function(req, res) {
+    var urlInput = req.params[0];
 
-        res.status(404).send('Invalid Short URL');
-    });
-
-    app.get('/new/*?', function(req, res) {
-        var theUrl = req.params[0];
-
-        if (theUrl && validurl.isUri(theUrl)) {
-            URLS.find({ url: theUrl }, function(err, recs) {
+    if (urlInput && validurl.isUri(urlInput)) {
+        URLS.find(
+            {
+                url: urlInput
+            },
+            (err, docs) => {
                 if (err) {
                     res.send(err);
                 }
-
-                if (recs && recs.length) {
+                if (docs && docs.length) {
                     res.status(201).json({
-                        original_url: theUrl,
-                        short_url: 'https://url-shortener-free-code-camp.herokuapp.com/' +
-                            recs[0].id
+                        original_url: urlInput,
+                        short_url: 'https://possible-need.glitch.me/' +
+                            docs[0].id
                     });
                 }
-            });
 
-            URLS.create({ url: theUrl }, function(err, newUrl) {
-                if (err) {
-                    res.send(err);
-                }
-
-                return res.status(201).json({
-                    original_url: theUrl,
-                    short_url: 'https://url-shortener-free-code-camp.herokuapp.com/' +
-                        newUrl.id
-                });
-            });
-        } else {
-            res.status(400).json({
-                error: 'URL Invalid'
-            });
-        }
-    });
+                URLS.create(
+                    {
+                        url: urlInput
+                    },
+                    (err, newUrl) => {
+                        if (err) {
+                            res.send(err);
+                        }
+                        return res.json({
+                            original_url: urlInput,
+                            short_url: 'https://possible-need.glitch.me/' +
+                                newUrl.id
+                        });
+                    }
+                );
+            }
+        );
+    } else {
+        res.status(400).json({
+            error: 'URL Invalid'
+        });
+    }
 });
