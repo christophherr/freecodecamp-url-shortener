@@ -1,6 +1,6 @@
-var mongoose = require('mongoose'), Schema = mongoose.Schema;
+const mongoose = require('mongoose'), Schema = mongoose.Schema;
 
-var KeepCountSchema = Schema({
+const KeepCountSchema = Schema({
     _id: {
         type: String,
         required: true
@@ -11,9 +11,9 @@ var KeepCountSchema = Schema({
     }
 });
 
-var keepCount = mongoose.model('keepCount', KeepCountSchema);
+const keepCount = mongoose.model('keepCount', KeepCountSchema);
 
-var UrlSchema = new Schema({
+const UrlSchema = new Schema({
     id: {
         type: Number,
         default: 0
@@ -22,7 +22,7 @@ var UrlSchema = new Schema({
 });
 
 UrlSchema.pre('save', function(next) {
-    var self = this;
+    var doc = this;
     keepCount.findByIdAndUpdate(
         {
             _id: 'urlid'
@@ -32,11 +32,15 @@ UrlSchema.pre('save', function(next) {
                 seq: 1
             }
         },
+        {
+            upsert: true,
+            new: true
+        },
         function(error, keepCount) {
             if (error) {
                 return next(error);
             }
-            self.id = keepCount.seq;
+            doc.id = keepCount.seq;
             next();
         }
     );
